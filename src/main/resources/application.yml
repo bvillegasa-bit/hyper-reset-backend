@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: hyper-reset-api
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/HyperReset?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: hyperreset
+    password: hyperreset123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    open-in-view: false
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: "SHlwZXJSZXNldDIwMjRTZWNyZXRLZXlGb3JKV1RUb2tlbkdlbmVyYXRpb25NdXN0QmUyNTZCaXRzTG9uZyE="
+    expiration-ms: 86400000
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
