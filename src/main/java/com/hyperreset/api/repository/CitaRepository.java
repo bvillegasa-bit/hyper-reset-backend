@@ -30,6 +30,32 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByFechaHoraBetweenWithRelations(@Param("start") LocalDateTime start,
                                                     @Param("end") LocalDateTime end);
 
+    @Query("SELECT c FROM Cita c JOIN FETCH c.deportista d JOIN FETCH d.usuario " +
+           "JOIN FETCH c.coach co JOIN FETCH co.usuario " +
+           "WHERE c.deportista.idDeportista = :deportistaId AND c.fechaHora > :now ORDER BY c.fechaHora ASC")
+    List<Cita> findByDeportistaIdAndFechaHoraAfter(@Param("deportistaId") Long deportistaId,
+                                                    @Param("now") LocalDateTime now);
+
+    @Query("SELECT c FROM Cita c JOIN FETCH c.deportista d JOIN FETCH d.usuario " +
+           "JOIN FETCH c.coach co JOIN FETCH co.usuario " +
+           "WHERE c.coach.idCoach = :coachId AND c.fechaHora BETWEEN :start AND :end")
+    List<Cita> findByCoachIdAndFechaHoraBetween(@Param("coachId") Long coachId,
+                                                 @Param("start") LocalDateTime start,
+                                                 @Param("end") LocalDateTime end);
+
+    @Query("SELECT c FROM Cita c JOIN FETCH c.deportista d JOIN FETCH d.usuario " +
+           "JOIN FETCH c.coach co JOIN FETCH co.usuario " +
+           "WHERE c.coach.idCoach = :coachId AND c.fechaHora > :now ORDER BY c.fechaHora ASC")
+    List<Cita> findByCoachIdAndFechaHoraAfter(@Param("coachId") Long coachId,
+                                               @Param("now") LocalDateTime now);
+
+    @Query("SELECT c FROM Cita c JOIN FETCH c.deportista d JOIN FETCH d.usuario " +
+           "JOIN FETCH c.coach co JOIN FETCH co.usuario " +
+           "WHERE c.deportista.idDeportista = :deportistaId AND c.fechaHora BETWEEN :start AND :end")
+    List<Cita> findByDeportistaIdAndFechaHoraBetween(@Param("deportistaId") Long deportistaId,
+                                                      @Param("start") LocalDateTime start,
+                                                      @Param("end") LocalDateTime end);
+
     List<Cita> findByFechaHoraBetween(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT c FROM Cita c JOIN FETCH c.deportista d JOIN FETCH d.usuario " +

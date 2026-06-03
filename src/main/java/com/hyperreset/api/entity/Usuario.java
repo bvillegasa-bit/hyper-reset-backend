@@ -32,6 +32,9 @@ public class Usuario {
     @Column(name = "telefono", length = 20)
     private String telefono;
 
+    @Column(name = "direccion", length = 255)
+    private String direccion;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false, length = 20)
     private Rol rol;
@@ -128,6 +131,14 @@ public class Usuario {
 
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
     }
 
     public Rol getRol() {

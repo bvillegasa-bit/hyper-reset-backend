@@ -104,10 +104,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
+        configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:8080",
                 "http://10.0.2.2:8080",
-                "http://localhost:3000"
+                "http://localhost:3000",
+                "https://*.ngrok-free.dev",
+                "https://*.ngrok.io"
         ));
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"

@@ -1,6 +1,6 @@
 package com.hyperreset.api.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import com.hyperreset.api.entity.enums.TipoTest;
 import jakarta.validation.constraints.NotNull;
 
 public class ResultadoRequest {
@@ -8,13 +8,13 @@ public class ResultadoRequest {
     @NotNull(message = "Test ID is required")
     private Long testId;
 
-    @NotBlank(message = "Parameter is required")
-    private String parametro;
+    @NotNull(message = "Tipo de test is required")
+    private TipoTest tipoTest;
 
     @NotNull(message = "Value is required")
     private Double valor;
 
-    @NotBlank(message = "Unit is required")
+    @NotNull(message = "Unit is required")
     private String unidad;
 
     private String observaciones;
@@ -22,9 +22,9 @@ public class ResultadoRequest {
     public ResultadoRequest() {
     }
 
-    public ResultadoRequest(Long testId, String parametro, Double valor, String unidad, String observaciones) {
+    public ResultadoRequest(Long testId, TipoTest tipoTest, Double valor, String unidad, String observaciones) {
         this.testId = testId;
-        this.parametro = parametro;
+        this.tipoTest = tipoTest;
         this.valor = valor;
         this.unidad = unidad;
         this.observaciones = observaciones;
@@ -38,12 +38,12 @@ public class ResultadoRequest {
         this.testId = testId;
     }
 
-    public String getParametro() {
-        return parametro;
+    public TipoTest getTipoTest() {
+        return tipoTest;
     }
 
-    public void setParametro(String parametro) {
-        this.parametro = parametro;
+    public void setTipoTest(TipoTest tipoTest) {
+        this.tipoTest = tipoTest;
     }
 
     public Double getValor() {

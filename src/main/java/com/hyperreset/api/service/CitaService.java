@@ -6,13 +6,18 @@ import com.hyperreset.api.entity.Cita;
 import com.hyperreset.api.entity.Coach;
 import com.hyperreset.api.entity.Deportista;
 import com.hyperreset.api.entity.enums.EstadoCita;
+import com.hyperreset.api.entity.enums.Rol;
 import com.hyperreset.api.exception.ResourceNotFoundException;
 import com.hyperreset.api.repository.CitaRepository;
 import com.hyperreset.api.repository.CoachRepository;
 import com.hyperreset.api.repository.DeportistaRepository;
+import com.hyperreset.api.security.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,15 +80,63 @@ public class CitaService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Overloaded method that filters by deportista ID when the authenticated user is DEPORTISTA.
+     * For COACH/ADMIN, returns all citas in the date range (same as original).
+     */
+    public List<CitaResponse> getCitasByDateRange(LocalDate start, LocalDate end, Long userId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isDeportista = false;
+
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+            isDeportista = "DEPORTISTA".equals(userPrincipal.getRole());
+        }
+
+        if (isDeportista) {
+            log.debug("DEPORTISTA fetching citas by date range, filtered by usuarioId: {}", userId);
+            // For DEPORTISTA, find their deportista record first, then filter citas
+            var deportistaOpt = deportistaRepository.findByUsuarioId(userId);
+            if (deportistaOpt.isPresent()) {
+                Long deportistaId = deportistaOpt.get().getIdDeportista();
+                LocalDateTime startDateTime = start.atStartOfDay();
+                LocalDateTime endDateTime = end.atTime(LocalTime.MAX);
+                return citaRepository.findByDeportistaIdAndFechaHoraBetween(deportistaId, startDateTime, endDateTime).stream()
+                        .map(this::toCitaResponse)
+                        .collect(Collectors.toList());
+            } else {
+                log.warn("DEPORTISTA with userId {} not found in deportista table", userId);
+                return List.of();
+            }
+        }
+
+        // COACH/ADMIN: return all citas in range
+        return getCitasByDateRange(start, end);
+    }
+
     public CitaResponse createCita(CitaRequest request) {
         log.debug("Creating cita for coachId: {}, deportistaId: {}",
                 request.getCoachId(), request.getDeportistaId());
 
-        Coach coach = coachRepository.findById(request.getCoachId())
-                .orElseThrow(() -> new ResourceNotFoundException("Coach", "id", request.getCoachId()));
+        // coachId from Android is the Usuario ID, so look up by usuario.idUsuario
+        Coach coach = coachRepository.findByUsuario_IdUsuario(request.getCoachId())
+                .orElseThrow(() -> new ResourceNotFoundException("Coach", "usuarioId", request.getCoachId()));
 
         Deportista deportista = deportistaRepository.findByIdWithUser(request.getDeportistaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Deportista", "id", request.getDeportistaId()));
+
+        // For DEPORTISTA users, verify they are creating a cita for themselves
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
+            UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
+            if ("DEPORTISTA".equals(userPrincipal.getRole())) {
+                var deportistaOpt = deportistaRepository.findByUsuarioId(userPrincipal.getUserId());
+                if (deportistaOpt.isEmpty() || !deportistaOpt.get().getIdDeportista().equals(request.getDeportistaId())) {
+                    throw new com.hyperreset.api.exception.UnauthorizedException(
+                            "No puedes crear citas para otro deportista");
+                }
+            }
+        }
 
         LocalDateTime fechaHora = LocalDateTime.of(
                 request.getFechaCita(),

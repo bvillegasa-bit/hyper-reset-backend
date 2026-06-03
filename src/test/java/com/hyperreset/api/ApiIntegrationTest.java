@@ -2,7 +2,10 @@ package com.hyperreset.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ApiIntegrationTest {
 
     @Autowired
@@ -260,5 +264,54 @@ class ApiIntegrationTest {
                         .header("Origin", "http://localhost:3000"))
                 .andExpect(status().isOk())
                 .andExpect(header().exists("Access-Control-Allow-Origin"));
+    }
+
+    // ==================================================================
+    // Physical Tests Scoring — Integration Tests
+    // ==================================================================
+
+    @Test
+    @Order(1)
+    void physicalTests_RegisterCoach_ReturnsToken() throws Exception {
+        String registerBody = "{"
+                + "\"nombre\":\"Coach PT\","
+                + "\"email\":\"pt.coach.integration@test.com\","
+                + "\"password\":\"password123\","
+                + "\"rol\":\"COACH\""
+                + "}";
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(registerBody))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.token").isNotEmpty());
+    }
+
+    @Test
+    @Order(2)
+    void physicalTests_LoginAndGetProfile_Success() throws Exception {
+        // Login with the coach registered above
+        String loginBody = "{"
+                + "\"email\":\"pt.coach.integration@test.com\","
+                + "\"password\":\"password123\""
+                + "}";
+
+        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andReturn();
+
+        String loginToken = objectMapper.readTree(
+                loginResult.getResponse().getContentAsString())
+                .get("data").get("token").asText();
+
+        // Get profile
+        mockMvc.perform(get("/api/auth/profile")
+                        .header("Authorization", "Bearer " + loginToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
     }
 }

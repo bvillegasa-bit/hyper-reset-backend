@@ -34,3 +34,49 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# ============================================
+# Scoring Threshold Configuration
+# ============================================
+test-scoring:
+  thresholds:
+    illinois:
+      excelente-max: 15.0
+      bueno-max: 16.0
+      regular-max: 17.5
+      lower-is-better: true
+    flexion-codos:
+      excelente-max: 40
+      bueno-max: 30
+      regular-max: 20
+      lower-is-better: false
+    velocidad-20m:
+      excelente-max: 3.0
+      bueno-max: 3.3
+      regular-max: 3.8
+      lower-is-better: true
+    velocidad-reaccion:
+      excelente-max: 0.15
+      bueno-max: 0.20
+      regular-max: 0.30
+      lower-is-better: true
+    salto-horizontal:
+      excelente-max: 240
+      bueno-max: 210
+      regular-max: 180
+      lower-is-better: false
+    flexion-tronco:
+      excelente-max: 25
+      bueno-max: 17
+      regular-max: 8
+      lower-is-better: false
+    dinamometria:
+      excelente-max: 50
+      bueno-max: 40
+      regular-max: 30
+      lower-is-better: false
+    andersen:
+      excelente-max: 2000
+      bueno-max: 1600
+      regular-max: 1200
+      lower-is-better: false

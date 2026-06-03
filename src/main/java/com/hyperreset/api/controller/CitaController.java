@@ -4,6 +4,7 @@ import com.hyperreset.api.dto.request.CitaRequest;
 import com.hyperreset.api.dto.response.ApiResponse;
 import com.hyperreset.api.dto.response.CitaResponse;
 import com.hyperreset.api.entity.enums.EstadoCita;
+import com.hyperreset.api.security.CurrentUser;
 import com.hyperreset.api.service.CitaService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -28,7 +29,7 @@ public class CitaController {
     private CitaService citaService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('COACH', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('COACH', 'ADMIN', 'DEPORTISTA')")
     public ResponseEntity<ApiResponse<List<CitaResponse>>> getAllCitas() {
         log.info("GET /api/citas - list all");
         List<CitaResponse> citas = citaService.getAllCitas();
@@ -60,20 +61,22 @@ public class CitaController {
     }
 
     @GetMapping("/rango")
-    @PreAuthorize("hasAnyRole('COACH', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('COACH', 'ADMIN', 'DEPORTISTA')")
     public ResponseEntity<ApiResponse<List<CitaResponse>>> getCitasByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end,
+            @CurrentUser Long userId) {
         log.info("GET /api/citas/rango?start={}&end={}", start, end);
-        List<CitaResponse> citas = citaService.getCitasByDateRange(start, end);
+        List<CitaResponse> citas = citaService.getCitasByDateRange(start, end, userId);
         return ResponseEntity.ok(ApiResponse.success(citas));
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('COACH', 'ADMIN')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<CitaResponse>> createCita(
-            @Valid @RequestBody CitaRequest request) {
-        log.info("POST /api/citas - creating cita");
+            @Valid @RequestBody CitaRequest request,
+            @CurrentUser Long userId) {
+        log.info("POST /api/citas - creating cita by userId: {}", userId);
         CitaResponse cita = citaService.createCita(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Cita created successfully", cita));

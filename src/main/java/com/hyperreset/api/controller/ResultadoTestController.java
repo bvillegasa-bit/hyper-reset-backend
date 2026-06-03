@@ -3,6 +3,7 @@ package com.hyperreset.api.controller;
 import com.hyperreset.api.dto.request.ResultadoRequest;
 import com.hyperreset.api.dto.response.ApiResponse;
 import com.hyperreset.api.dto.response.ResultadoResponse;
+import com.hyperreset.api.dto.response.TipoTestEstadoResponse;
 import com.hyperreset.api.service.ResultadoTestService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -50,6 +51,15 @@ public class ResultadoTestController {
         ResultadoResponse resultado = resultadoTestService.createResultado(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Resultado creado exitosamente", resultado));
+    }
+
+    @GetMapping("/tipos-con-estado/{deportistaId}")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<TipoTestEstadoResponse>>> getTiposTestConEstado(
+            @PathVariable Long deportistaId) {
+        log.info("GET /api/resultados/tipos-con-estado/{}", deportistaId);
+        List<TipoTestEstadoResponse> tipos = resultadoTestService.getTiposTestConEstado(deportistaId);
+        return ResponseEntity.ok(ApiResponse.success(tipos));
     }
 
     @DeleteMapping("/{id}")

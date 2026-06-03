@@ -2,7 +2,9 @@ package com.hyperreset.api.controller;
 
 import com.hyperreset.api.dto.request.DeportistaRequest;
 import com.hyperreset.api.dto.response.ApiResponse;
+import com.hyperreset.api.dto.response.CoachResponse;
 import com.hyperreset.api.dto.response.DeportistaResponse;
+import com.hyperreset.api.security.CurrentUser;
 import com.hyperreset.api.service.DeportistaService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -59,7 +61,7 @@ public class DeportistaController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('COACH') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('COACH') or hasRole('ADMIN') or hasRole('DEPORTISTA')")
     public ResponseEntity<ApiResponse<DeportistaResponse>> updateDeportista(
             @PathVariable Long id,
             @Valid @RequestBody DeportistaRequest request) {
@@ -74,5 +76,21 @@ public class DeportistaController {
         log.debug("DELETE /api/deportistas/{}", id);
         deportistaService.deleteDeportista(id);
         return ResponseEntity.ok(ApiResponse.success("Deportista eliminado exitosamente", null));
+    }
+
+    @GetMapping("/coaches")
+    @PreAuthorize("hasRole('DEPORTISTA')")
+    public ResponseEntity<ApiResponse<List<CoachResponse>>> getAvailableCoaches() {
+        log.debug("GET /api/deportistas/coaches");
+        List<CoachResponse> coaches = deportistaService.getAvailableCoaches();
+        return ResponseEntity.ok(ApiResponse.success(coaches));
+    }
+
+    @GetMapping("/mi-coach")
+    @PreAuthorize("hasRole('DEPORTISTA')")
+    public ResponseEntity<ApiResponse<CoachResponse>> getMiCoach(@CurrentUser Long userId) {
+        log.debug("GET /api/deportistas/mi-coach for userId: {}", userId);
+        CoachResponse coach = deportistaService.getMiCoach(userId);
+        return ResponseEntity.ok(ApiResponse.success(coach));
     }
 }

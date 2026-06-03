@@ -73,6 +73,7 @@ public class TestFisicoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Coach", "id", coachId));
 
         TestFisico test = new TestFisico(deportista, coach);
+        test.setTipoTest(request.getTipoTest());
         test.setLugar(request.getNotas());
         test.setFechaEjecucion(LocalDateTime.now());
         test.setEstadoTest(EstadoTest.EN_PROGRESO);
@@ -134,10 +135,7 @@ public class TestFisicoService {
         String deportistaNombre = test.getDeportista().getUsuario().getNombres()
                 + " " + test.getDeportista().getUsuario().getApellidos();
 
-        String tipoTestStr = null;
-        if (test.getResultados() != null && !test.getResultados().isEmpty()) {
-            tipoTestStr = test.getResultados().get(0).getTipoTest().name();
-        }
+        String tipoTestStr = test.getTipoTest() != null ? test.getTipoTest().name() : null;
 
         return new TestFisicoResponse(
                 test.getIdTestFisico(),

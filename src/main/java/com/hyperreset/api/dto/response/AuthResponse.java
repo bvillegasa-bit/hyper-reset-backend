@@ -8,6 +8,7 @@ public class AuthResponse {
     private String email;
     private String rol;
     private String nombre;
+    private Long deportistaId;
 
     public AuthResponse() {
     }
@@ -19,6 +20,16 @@ public class AuthResponse {
         this.email = email;
         this.rol = rol;
         this.nombre = nombre;
+    }
+
+    public AuthResponse(String token, Long userId, String email, String rol, String nombre, Long deportistaId) {
+        this.token = token;
+        this.type = "Bearer";
+        this.userId = userId;
+        this.email = email;
+        this.rol = rol;
+        this.nombre = nombre;
+        this.deportistaId = deportistaId;
     }
 
     public String getToken() {
@@ -67,5 +78,13 @@ public class AuthResponse {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public Long getDeportistaId() {
+        return deportistaId;
+    }
+
+    public void setDeportistaId(Long deportistaId) {
+        this.deportistaId = deportistaId;
     }
 }

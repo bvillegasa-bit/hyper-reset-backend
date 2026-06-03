@@ -91,8 +91,18 @@ public class AuthService {
 
         String nombre = nombres + (apellidos.isEmpty() ? "" : " " + apellidos);
 
+        // Buscar deportistaId si el usuario es DEPORTISTA
+        Long deportistaId = null;
+        if (usuario.getRol() == Rol.DEPORTISTA) {
+            java.util.Optional<com.hyperreset.api.entity.Deportista> depOpt =
+                    deportistaRepository.findByUsuarioId(usuario.getIdUsuario());
+            if (depOpt.isPresent()) {
+                deportistaId = depOpt.get().getIdDeportista();
+            }
+        }
+
         return new AuthResponse(token, usuario.getIdUsuario(), usuario.getCorreo(),
-                usuario.getRol().name(), nombre);
+                usuario.getRol().name(), nombre, deportistaId);
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -111,8 +121,18 @@ public class AuthService {
         String token = jwtTokenProvider.generateToken(userPrincipal);
         String nombreCompleto = usuario.getNombres() + " " + usuario.getApellidos();
 
+        // Buscar deportistaId si el usuario es DEPORTISTA
+        Long deportistaId = null;
+        if (usuario.getRol() == Rol.DEPORTISTA) {
+            java.util.Optional<com.hyperreset.api.entity.Deportista> depOpt =
+                    deportistaRepository.findByUsuarioId(usuario.getIdUsuario());
+            if (depOpt.isPresent()) {
+                deportistaId = depOpt.get().getIdDeportista();
+            }
+        }
+
         return new AuthResponse(token, usuario.getIdUsuario(), usuario.getCorreo(),
-                usuario.getRol().name(), nombreCompleto);
+                usuario.getRol().name(), nombreCompleto, deportistaId);
     }
 
     @Transactional(readOnly = true)

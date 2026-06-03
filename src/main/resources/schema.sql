@@ -14,12 +14,13 @@ USE HyperReset;
 -- TABLA 1: usuario
 -- ============================================
 CREATE TABLE usuario (
-    id_usuario       INT           NOT NULL AUTO_INCREMENT,
+    id_usuario       BIGINT        NOT NULL AUTO_INCREMENT,
     nombres          VARCHAR(100)  NOT NULL,
     apellidos        VARCHAR(100)  NOT NULL,
     correo           VARCHAR(150)  NOT NULL,
     contrasena_hash  VARCHAR(255)  NOT NULL,
     telefono         VARCHAR(20)       NULL,
+    direccion        VARCHAR(255)      NULL,
     rol              VARCHAR(20)   NOT NULL,      -- 'COACH' | 'DEPORTISTA'
     fecha_nacimiento DATE              NULL,
     fecha_registro   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -34,8 +35,8 @@ CREATE TABLE usuario (
 -- TABLA 2: coach
 -- ============================================
 CREATE TABLE coach (
-    id_coach     INT           NOT NULL AUTO_INCREMENT,
-    id_usuario   INT           NOT NULL,
+    id_coach     BIGINT        NOT NULL AUTO_INCREMENT,
+    id_usuario   BIGINT        NOT NULL,
     especialidad VARCHAR(100)      NULL,
     descripcion  TEXT              NULL,
 
@@ -51,9 +52,9 @@ CREATE TABLE coach (
 -- TABLA 3: deportista
 -- ============================================
 CREATE TABLE deportista (
-    id_deportista    INT          NOT NULL AUTO_INCREMENT,
-    id_usuario       INT          NOT NULL,
-    id_coach         INT              NULL,
+    id_deportista    BIGINT       NOT NULL AUTO_INCREMENT,
+    id_usuario       BIGINT       NOT NULL,
+    id_coach         BIGINT           NULL,
     deporte          VARCHAR(100)     NULL,
     nivel_deportista VARCHAR(20)      NULL,     -- 'AMATEUR' | 'SEMIPROFESIONAL' | 'PROFESIONAL'
     estado_deportista VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE',
@@ -76,19 +77,21 @@ CREATE TABLE deportista (
 -- TABLA 4: test_fisico
 -- ============================================
 CREATE TABLE test_fisico (
-    id_test_fisico                 INT           NOT NULL AUTO_INCREMENT,
-    id_deportista                  INT           NOT NULL,
-    id_coach                       INT           NOT NULL,
+    id_test_fisico                 BIGINT        NOT NULL AUTO_INCREMENT,
+    id_deportista                  BIGINT        NOT NULL,
+    id_coach                       BIGINT        NOT NULL,
     fecha_ejecucion                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lugar                          VARCHAR(150)      NULL,
     peso_deportista                DECIMAL(5,2)      NULL,
     estatura_parado_deportista     DECIMAL(5,2)      NULL,
     estatura_sentado_deportista    DECIMAL(5,2)      NULL,
     antecedentes_medicos           TEXT              NULL,
+    tipo_test                      VARCHAR(30)   NOT NULL,
     estado_test                    VARCHAR(20)   NOT NULL DEFAULT 'EN_PROGRESO',
 
     CONSTRAINT pk_test_fisico  PRIMARY KEY (id_test_fisico),
     CONSTRAINT ck_test_estado  CHECK       (estado_test IN ('EN_PROGRESO','COMPLETADO')),
+    CONSTRAINT ck_test_tipo    CHECK       (tipo_test IN ('ILLINOIS','FLEXION_CODOS','VELOCIDAD_20M','VELOCIDAD_REACCION','SALTO_HORIZONTAL','FLEXION_TRONCO','DINAMOMETRIA','ANDERSEN')),
     CONSTRAINT fk_test_deportista FOREIGN KEY (id_deportista)
         REFERENCES deportista(id_deportista)
         ON DELETE CASCADE
@@ -103,8 +106,8 @@ CREATE TABLE test_fisico (
 -- TABLA 5: resultado_test
 -- ============================================
 CREATE TABLE resultado_test (
-    id_resultado    INT           NOT NULL AUTO_INCREMENT,
-    id_test_fisico  INT           NOT NULL,
+    id_resultado    BIGINT        NOT NULL AUTO_INCREMENT,
+    id_test_fisico  BIGINT        NOT NULL,
     tipo_test       VARCHAR(30)   NOT NULL,
     valor_obtenido  DECIMAL(8,3)  NOT NULL,
     unidad_medicion VARCHAR(20)   NOT NULL,
@@ -133,9 +136,9 @@ CREATE TABLE resultado_test (
 -- TABLA 6: cita
 -- ============================================
 CREATE TABLE cita (
-    id_cita          INT           NOT NULL AUTO_INCREMENT,
-    id_deportista    INT           NOT NULL,
-    id_coach         INT           NOT NULL,
+    id_cita          BIGINT        NOT NULL AUTO_INCREMENT,
+    id_deportista    BIGINT        NOT NULL,
+    id_coach         BIGINT        NOT NULL,
     fecha_hora       DATETIME      NOT NULL,
     tipo_sesion      VARCHAR(100)  NOT NULL,
     duracion_sesion  INT           NOT NULL DEFAULT 60,
@@ -158,9 +161,9 @@ CREATE TABLE cita (
 -- TABLA 7: mensaje
 -- ============================================
 CREATE TABLE mensaje (
-    id_mensaje       INT           NOT NULL AUTO_INCREMENT,
-    id_remitente     INT           NOT NULL,
-    id_destinatario  INT           NOT NULL,
+    id_mensaje       BIGINT        NOT NULL AUTO_INCREMENT,
+    id_remitente     BIGINT        NOT NULL,
+    id_destinatario  BIGINT        NOT NULL,
     contenido_mmensaje  TEXT       NOT NULL,
     tipo_mensaje     VARCHAR(20)   NOT NULL DEFAULT 'TEXTO',
     fecha_envio      DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -186,9 +189,9 @@ CREATE INDEX idx_mensaje_conversacion
 -- TABLA 8: reporte
 -- ============================================
 CREATE TABLE reporte (
-    id_reporte             INT           NOT NULL AUTO_INCREMENT,
-    id_test_fisico         INT           NOT NULL,
-    id_coach               INT           NOT NULL,
+    id_reporte             BIGINT        NOT NULL AUTO_INCREMENT,
+    id_test_fisico         BIGINT        NOT NULL,
+    id_coach               BIGINT        NOT NULL,
     fecha_generacion       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     observaciones_reporte  TEXT              NULL,
     recomendaciones_reporte TEXT             NULL,
@@ -210,8 +213,8 @@ CREATE TABLE reporte (
 -- TABLA 9: material
 -- ============================================
 CREATE TABLE material (
-    id_material          INT           NOT NULL AUTO_INCREMENT,
-    id_coach             INT           NOT NULL,
+    id_material          BIGINT        NOT NULL AUTO_INCREMENT,
+    id_coach             BIGINT        NOT NULL,
     titulo_material      VARCHAR(200)  NOT NULL,
     descripcion_material TEXT              NULL,
     tipo_material        VARCHAR(20)   NOT NULL,

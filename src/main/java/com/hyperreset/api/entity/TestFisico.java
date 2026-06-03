@@ -1,6 +1,7 @@
 package com.hyperreset.api.entity;
 
 import com.hyperreset.api.entity.enums.EstadoTest;
+import com.hyperreset.api.entity.enums.TipoTest;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -44,6 +45,10 @@ public class TestFisico {
     private String antecedentesMedicos;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_test", nullable = false, length = 30)
+    private TipoTest tipoTest;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "estado_test", nullable = false, length = 20)
     private EstadoTest estadoTest = EstadoTest.EN_PROGRESO;
 
@@ -54,6 +59,14 @@ public class TestFisico {
     private Reporte reporte;
 
     public TestFisico() {
+    }
+
+    public TestFisico(Deportista deportista, Coach coach, TipoTest tipoTest) {
+        this.deportista = deportista;
+        this.coach = coach;
+        this.tipoTest = tipoTest;
+        this.fechaEjecucion = LocalDateTime.now();
+        this.estadoTest = EstadoTest.EN_PROGRESO;
     }
 
     public TestFisico(Deportista deportista, Coach coach) {
@@ -145,6 +158,14 @@ public class TestFisico {
 
     public void setAntecedentesMedicos(String antecedentesMedicos) {
         this.antecedentesMedicos = antecedentesMedicos;
+    }
+
+    public TipoTest getTipoTest() {
+        return tipoTest;
+    }
+
+    public void setTipoTest(TipoTest tipoTest) {
+        this.tipoTest = tipoTest;
     }
 
     public EstadoTest getEstadoTest() {

@@ -1,5 +1,6 @@
 package com.hyperreset.api.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
@@ -11,6 +12,10 @@ public class DeportistaRequest {
 
     @NotBlank(message = "Apellidos is required")
     private String apellidos;
+
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email must be a valid email address")
+    private String email;
 
     @Past(message = "Fecha de nacimiento must be in the past")
     private LocalDate fechaNacimiento;
@@ -24,10 +29,11 @@ public class DeportistaRequest {
     public DeportistaRequest() {
     }
 
-    public DeportistaRequest(String nombres, String apellidos, LocalDate fechaNacimiento,
+    public DeportistaRequest(String nombres, String apellidos, String email, LocalDate fechaNacimiento,
                              String telefono, String direccion, Long coachId) {
         this.nombres = nombres;
         this.apellidos = apellidos;
+        this.email = email;
         this.fechaNacimiento = fechaNacimiento;
         this.telefono = telefono;
         this.direccion = direccion;
@@ -48,6 +54,14 @@ public class DeportistaRequest {
 
     public void setApellidos(String apellidos) {
         this.apellidos = apellidos;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public LocalDate getFechaNacimiento() {

@@ -4,21 +4,23 @@ public class ResultadoResponse {
 
     private Long id;
     private Long testId;
-    private String parametro;
+    private String tipoTest;
     private Double valor;
     private String unidad;
+    private String calificacion;
     private String observaciones;
 
     public ResultadoResponse() {
     }
 
-    public ResultadoResponse(Long id, Long testId, String parametro, Double valor,
-                             String unidad, String observaciones) {
+    public ResultadoResponse(Long id, Long testId, String tipoTest, Double valor,
+                             String unidad, String calificacion, String observaciones) {
         this.id = id;
         this.testId = testId;
-        this.parametro = parametro;
+        this.tipoTest = tipoTest;
         this.valor = valor;
         this.unidad = unidad;
+        this.calificacion = calificacion;
         this.observaciones = observaciones;
     }
 
@@ -38,12 +40,12 @@ public class ResultadoResponse {
         this.testId = testId;
     }
 
-    public String getParametro() {
-        return parametro;
+    public String getTipoTest() {
+        return tipoTest;
     }
 
-    public void setParametro(String parametro) {
-        this.parametro = parametro;
+    public void setTipoTest(String tipoTest) {
+        this.tipoTest = tipoTest;
     }
 
     public Double getValor() {
@@ -60,6 +62,14 @@ public class ResultadoResponse {
 
     public void setUnidad(String unidad) {
         this.unidad = unidad;
+    }
+
+    public String getCalificacion() {
+        return calificacion;
+    }
+
+    public void setCalificacion(String calificacion) {
+        this.calificacion = calificacion;
     }
 
     public String getObservaciones() {
