@@ -1,7 +1,9 @@
 package com.hyperreset.api.service;
 
 import com.hyperreset.api.auth.JwtTokenProvider;
+import com.hyperreset.api.dto.request.ChangePasswordRequest;
 import com.hyperreset.api.dto.request.LoginRequest;
+import com.hyperreset.api.dto.request.ProfileUpdateRequest;
 import com.hyperreset.api.dto.request.RegisterRequest;
 import com.hyperreset.api.dto.response.AuthResponse;
 import com.hyperreset.api.dto.response.UsuarioResponse;
@@ -10,6 +12,7 @@ import com.hyperreset.api.entity.Deportista;
 import com.hyperreset.api.entity.Usuario;
 import com.hyperreset.api.entity.enums.Rol;
 import com.hyperreset.api.exception.BadRequestException;
+import com.hyperreset.api.exception.DuplicateResourceException;
 import com.hyperreset.api.exception.ResourceNotFoundException;
 import com.hyperreset.api.repository.CoachRepository;
 import com.hyperreset.api.repository.DeportistaRepository;
@@ -147,8 +150,85 @@ public class AuthService {
                 usuario.getCorreo(),
                 usuario.getRol().name(),
                 nombreCompleto,
+                usuario.getApellidos(),
+                usuario.getTelefono(),
+                usuario.getDireccion(),
+                usuario.getFechaNacimiento(),
                 usuario.getFechaRegistro().toLocalDate(),
                 usuario.getActivo()
         );
+    }
+
+    public UsuarioResponse updateProfile(Long userId, ProfileUpdateRequest request) {
+        log.debug("Updating profile for userId: {}", userId);
+
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", userId));
+
+        // Update only non-null fields
+        if (request.getNombres() != null) {
+            usuario.setNombres(request.getNombres());
+        }
+        if (request.getApellidos() != null) {
+            usuario.setApellidos(request.getApellidos());
+        }
+        if (request.getCorreo() != null && !request.getCorreo().isEmpty()) {
+            // Check if another user already has this email
+            usuarioRepository.findByCorreo(request.getCorreo()).ifPresent(existing -> {
+                if (!existing.getIdUsuario().equals(userId)) {
+                    throw new DuplicateResourceException("El correo ya está registrado");
+                }
+            });
+            usuario.setCorreo(request.getCorreo());
+        }
+        if (request.getTelefono() != null) {
+            usuario.setTelefono(request.getTelefono());
+        }
+        if (request.getDireccion() != null) {
+            usuario.setDireccion(request.getDireccion());
+        }
+        if (request.getFechaNacimiento() != null) {
+            usuario.setFechaNacimiento(request.getFechaNacimiento());
+        }
+
+        usuario = usuarioRepository.save(usuario);
+
+        String nombreCompleto = usuario.getNombres() + " " + usuario.getApellidos();
+
+        return new UsuarioResponse(
+                usuario.getIdUsuario(),
+                usuario.getCorreo(),
+                usuario.getRol().name(),
+                nombreCompleto,
+                usuario.getApellidos(),
+                usuario.getTelefono(),
+                usuario.getDireccion(),
+                usuario.getFechaNacimiento(),
+                usuario.getFechaRegistro().toLocalDate(),
+                usuario.getActivo()
+        );
+    }
+
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        log.debug("Changing password for userId: {}", userId);
+
+        Usuario usuario = usuarioRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "id", userId));
+
+        // Validate current password matches stored hash
+        if (!passwordEncoder.matches(request.getCurrentPassword(), usuario.getContrasenaHash())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
+
+        // Validate new password matches confirm password
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new BadRequestException("New password and confirm password do not match");
+        }
+
+        // Encode and save new password
+        usuario.setContrasenaHash(passwordEncoder.encode(request.getNewPassword()));
+        usuarioRepository.save(usuario);
+
+        log.info("Password changed successfully for userId: {}", userId);
     }
 }

@@ -1,8 +1,13 @@
 package com.hyperreset.api.controller;
 
 import com.hyperreset.api.dto.response.ApiResponse;
+import com.hyperreset.api.dto.response.DashboardActivityResponse;
 import com.hyperreset.api.dto.response.DashboardCoachResponse;
 import com.hyperreset.api.dto.response.DashboardDeportistaResponse;
+import com.hyperreset.api.entity.Coach;
+import com.hyperreset.api.exception.ResourceNotFoundException;
+import com.hyperreset.api.repository.CoachRepository;
+import com.hyperreset.api.security.CurrentUser;
 import com.hyperreset.api.service.DashboardService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +28,9 @@ public class DashboardController {
 
     @Autowired
     private DashboardService dashboardService;
+
+    @Autowired
+    private CoachRepository coachRepository;
 
     /**
      * GET /api/dashboard/deportista/{id}
@@ -50,5 +58,30 @@ public class DashboardController {
         log.info("GET /api/dashboard/coach/{}", id);
         DashboardCoachResponse dashboard = dashboardService.getDashboardCoach(id);
         return ResponseEntity.ok(ApiResponse.success(dashboard));
+    }
+
+    /**
+     * GET /api/dashboard/actividad
+     * Returns a paginated list of recent activity for the authenticated coach.
+     * Used by the "Ver toda la actividad" feature.
+     *
+     * @param page zero-based page index (default 0)
+     * @param size page size (default 20)
+     */
+    @GetMapping("/actividad")
+    @PreAuthorize("hasAnyRole('COACH', 'ADMIN')")
+    public ResponseEntity<ApiResponse<DashboardActivityResponse>> getActividad(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @CurrentUser Long userId) {
+
+        log.info("GET /api/dashboard/actividad?page={}&size={} (userId={})", page, size, userId);
+
+        // Resolve coach ID from the authenticated user
+        Coach coach = coachRepository.findByUsuarioId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Coach", "userId", userId));
+
+        DashboardActivityResponse response = dashboardService.getActividad(coach.getIdCoach(), page, size);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

@@ -1,5 +1,7 @@
 package com.hyperreset.api.service;
 
+import com.hyperreset.api.dto.response.ActividadRecienteItem;
+import com.hyperreset.api.dto.response.DashboardActivityResponse;
 import com.hyperreset.api.dto.response.DashboardCoachResponse;
 import com.hyperreset.api.dto.response.DashboardDeportistaResponse;
 import com.hyperreset.api.dto.response.DashboardDeportistaResponse.LogrosInfo;
@@ -18,6 +20,10 @@ import com.hyperreset.api.repository.TestFisicoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -266,6 +272,40 @@ public class DashboardService {
         // Sort by timestamp descending and take last 5
         activity.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
         return activity.size() > 5 ? activity.subList(0, 5) : activity;
+    }
+
+    /**
+     * Returns a paginated list of recent activity for the coach, ordered by execution date descending.
+     * Used by the "Ver toda la actividad" endpoint.
+     *
+     * @param coachId the coach's ID
+     * @param page    zero-based page index
+     * @param size    page size
+     * @return a DashboardActivityResponse with items and pagination metadata
+     */
+    public DashboardActivityResponse getActividad(Long coachId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "fechaEjecucion"));
+        Page<TestFisico> testPage = testFisicoRepository.findByCoachId(coachId, pageable);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+        List<ActividadRecienteItem> items = testPage.getContent().stream()
+                .map(t -> {
+                    String pacienteNombre = t.getDeportista().getUsuario().getNombres()
+                            + " " + t.getDeportista().getUsuario().getApellidos();
+                    String accion = "Test " + t.getTipoTest().name() + " "
+                            + (t.getEstadoTest() == EstadoTest.COMPLETADO ? "completado" : "en progreso");
+                    String timestamp = t.getFechaEjecucion().format(formatter);
+                    return new ActividadRecienteItem(pacienteNombre, accion, timestamp, "success");
+                })
+                .collect(Collectors.toList());
+
+        return new DashboardActivityResponse(
+                items,
+                testPage.getNumber(),
+                testPage.getTotalPages(),
+                testPage.getTotalElements()
+        );
     }
 
     /**

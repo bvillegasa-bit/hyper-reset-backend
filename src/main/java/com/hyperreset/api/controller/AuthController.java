@@ -1,6 +1,8 @@
 package com.hyperreset.api.controller;
 
+import com.hyperreset.api.dto.request.ChangePasswordRequest;
 import com.hyperreset.api.dto.request.LoginRequest;
+import com.hyperreset.api.dto.request.ProfileUpdateRequest;
 import com.hyperreset.api.dto.request.RegisterRequest;
 import com.hyperreset.api.dto.response.ApiResponse;
 import com.hyperreset.api.dto.response.AuthResponse;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,5 +47,25 @@ public class AuthController {
         log.debug("GET /api/auth/profile - userId: {}", userId);
         UsuarioResponse usuarioResponse = authService.getProfile(userId);
         return ResponseEntity.ok(ApiResponse.success("Perfil obtenido", usuarioResponse));
+    }
+
+    @PutMapping("/profile")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<UsuarioResponse>> updateProfile(
+            @Valid @RequestBody ProfileUpdateRequest request,
+            @CurrentUser Long userId) {
+        log.debug("PUT /api/auth/profile - userId: {}", userId);
+        UsuarioResponse response = authService.updateProfile(userId, request);
+        return ResponseEntity.ok(ApiResponse.success("Perfil actualizado exitosamente", response));
+    }
+
+    @PatchMapping("/change-password")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            @CurrentUser Long userId) {
+        log.debug("PATCH /api/auth/change-password - userId: {}", userId);
+        authService.changePassword(userId, request);
+        return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
     }
 }
