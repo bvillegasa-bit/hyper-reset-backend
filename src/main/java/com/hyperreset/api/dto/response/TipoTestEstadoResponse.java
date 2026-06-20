@@ -14,12 +14,14 @@ public class TipoTestEstadoResponse {
     private Double ultimoValor;
     private String unidad;
     private String fechaUltimo;
+    private String calificacion;
 
     public TipoTestEstadoResponse() {
     }
 
     public TipoTestEstadoResponse(String tipoTest, String nombre, String icono, String duracion,
-                                  boolean completado, Double ultimoValor, String unidad, String fechaUltimo) {
+                                  boolean completado, Double ultimoValor, String unidad, String fechaUltimo,
+                                  String calificacion) {
         this.tipoTest = tipoTest;
         this.nombre = nombre;
         this.icono = icono;
@@ -28,6 +30,7 @@ public class TipoTestEstadoResponse {
         this.ultimoValor = ultimoValor;
         this.unidad = unidad;
         this.fechaUltimo = fechaUltimo;
+        this.calificacion = calificacion;
     }
 
     // Getters and Setters
@@ -94,5 +97,13 @@ public class TipoTestEstadoResponse {
 
     public void setFechaUltimo(String fechaUltimo) {
         this.fechaUltimo = fechaUltimo;
+    }
+
+    public String getCalificacion() {
+        return calificacion;
+    }
+
+    public void setCalificacion(String calificacion) {
+        this.calificacion = calificacion;
     }
 }

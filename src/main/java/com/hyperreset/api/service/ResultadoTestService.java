@@ -165,6 +165,8 @@ public class ResultadoTestService {
             if (completado && latest.getTestFisico().getFechaEjecucion() != null) {
                 fechaUltimo = latest.getTestFisico().getFechaEjecucion().toLocalDate().format(dateFormatter);
             }
+            String calificacion = completado && latest.getCalificacion() != null
+                    ? latest.getCalificacion().name() : null;
 
             response.add(new TipoTestEstadoResponse(
                     meta.tipoTest,
@@ -174,7 +176,8 @@ public class ResultadoTestService {
                     completado,
                     ultimoValor,
                     completado ? meta.unidad : null,
-                    fechaUltimo
+                    fechaUltimo,
+                    calificacion
             ));
         }
 
