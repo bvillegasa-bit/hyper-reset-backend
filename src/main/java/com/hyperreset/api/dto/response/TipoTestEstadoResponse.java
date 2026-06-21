@@ -15,13 +15,14 @@ public class TipoTestEstadoResponse {
     private String unidad;
     private String fechaUltimo;
     private String calificacion;
+    private Long idTestFisico;
 
     public TipoTestEstadoResponse() {
     }
 
     public TipoTestEstadoResponse(String tipoTest, String nombre, String icono, String duracion,
                                   boolean completado, Double ultimoValor, String unidad, String fechaUltimo,
-                                  String calificacion) {
+                                  String calificacion, Long idTestFisico) {
         this.tipoTest = tipoTest;
         this.nombre = nombre;
         this.icono = icono;
@@ -31,6 +32,7 @@ public class TipoTestEstadoResponse {
         this.unidad = unidad;
         this.fechaUltimo = fechaUltimo;
         this.calificacion = calificacion;
+        this.idTestFisico = idTestFisico;
     }
 
     // Getters and Setters
@@ -105,5 +107,13 @@ public class TipoTestEstadoResponse {
 
     public void setCalificacion(String calificacion) {
         this.calificacion = calificacion;
+    }
+
+    public Long getIdTestFisico() {
+        return idTestFisico;
+    }
+
+    public void setIdTestFisico(Long idTestFisico) {
+        this.idTestFisico = idTestFisico;
     }
 }

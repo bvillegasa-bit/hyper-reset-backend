@@ -160,6 +160,7 @@ public class ResultadoTestService {
             ResultadoTest latest = latestByType.get(tipoTestEnum);
 
             boolean completado = latest != null;
+            Long idTestFisico = completado ? latest.getTestFisico().getIdTestFisico() : null;
             Double ultimoValor = completado ? latest.getValorObtenido().doubleValue() : null;
             String fechaUltimo = null;
             if (completado && latest.getTestFisico().getFechaEjecucion() != null) {
@@ -177,7 +178,8 @@ public class ResultadoTestService {
                     ultimoValor,
                     completado ? meta.unidad : null,
                     fechaUltimo,
-                    calificacion
+                    calificacion,
+                    idTestFisico
             ));
         }
 
