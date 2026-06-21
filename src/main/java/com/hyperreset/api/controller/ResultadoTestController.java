@@ -44,7 +44,7 @@ public class ResultadoTestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('COACH')")
+    @PreAuthorize("hasAnyRole('COACH', 'DEPORTISTA')")
     public ResponseEntity<ApiResponse<ResultadoResponse>> createResultado(
             @Valid @RequestBody ResultadoRequest request) {
         log.debug("POST /api/resultados - testId: {}", request.getTestId());

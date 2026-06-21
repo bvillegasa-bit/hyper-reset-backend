@@ -1,8 +1,8 @@
 package com.hyperreset.api.dto.request;
 
 import com.hyperreset.api.entity.enums.TipoTest;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class TestFisicoRequest {
 
@@ -12,7 +12,7 @@ public class TestFisicoRequest {
     @NotNull(message = "Tipo de test is required")
     private TipoTest tipoTest;
 
-    @NotBlank(message = "Notas is required")
+    @Size(max = 500)
     private String notas;
 
     public TestFisicoRequest() {

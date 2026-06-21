@@ -51,12 +51,12 @@ public class TestFisicoController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('COACH')")
+    @PreAuthorize("hasAnyRole('COACH', 'DEPORTISTA')")
     public ResponseEntity<ApiResponse<TestFisicoResponse>> createTest(
             @Valid @RequestBody TestFisicoRequest request,
-            @CurrentUser Long coachId) {
-        log.debug("POST /api/test-fisicos - deportistaId: {}", request.getDeportistaId());
-        TestFisicoResponse test = testFisicoService.createTest(request, coachId);
+            @CurrentUser Long userId) {
+        log.debug("POST /api/test-fisicos - deportistaId: {}, userId: {}", request.getDeportistaId(), userId);
+        TestFisicoResponse test = testFisicoService.createTest(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Test físico creado exitosamente", test));
     }
@@ -80,7 +80,7 @@ public class TestFisicoController {
     }
 
     @PatchMapping("/{id}/completar")
-    @PreAuthorize("hasRole('COACH')")
+    @PreAuthorize("hasAnyRole('COACH', 'DEPORTISTA')")
     public ResponseEntity<ApiResponse<TestFisicoResponse>> completarTest(@PathVariable Long id) {
         log.debug("PATCH /api/test-fisicos/{}/completar", id);
         TestFisicoResponse test = testFisicoService.completarTest(id);

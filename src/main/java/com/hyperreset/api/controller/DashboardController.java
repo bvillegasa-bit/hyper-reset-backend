@@ -4,9 +4,13 @@ import com.hyperreset.api.dto.response.ApiResponse;
 import com.hyperreset.api.dto.response.DashboardActivityResponse;
 import com.hyperreset.api.dto.response.DashboardCoachResponse;
 import com.hyperreset.api.dto.response.DashboardDeportistaResponse;
+import com.hyperreset.api.dto.response.ActividadRecienteItem;
 import com.hyperreset.api.entity.Coach;
 import com.hyperreset.api.exception.ResourceNotFoundException;
 import com.hyperreset.api.repository.CoachRepository;
+
+import java.util.Collections;
+import java.util.Optional;
 import com.hyperreset.api.security.CurrentUser;
 import com.hyperreset.api.service.DashboardService;
 import org.slf4j.Logger;
@@ -69,7 +73,7 @@ public class DashboardController {
      * @param size page size (default 20)
      */
     @GetMapping("/actividad")
-    @PreAuthorize("hasAnyRole('COACH', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('COACH', 'DEPORTISTA', 'ADMIN')")
     public ResponseEntity<ApiResponse<DashboardActivityResponse>> getActividad(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
@@ -77,10 +81,17 @@ public class DashboardController {
 
         log.info("GET /api/dashboard/actividad?page={}&size={} (userId={})", page, size, userId);
 
-        // Resolve coach ID from the authenticated user
-        Coach coach = coachRepository.findByUsuarioId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Coach", "userId", userId));
+        Optional<Coach> coachOpt = coachRepository.findByUsuarioId(userId);
+        if (coachOpt.isEmpty()) {
+            DashboardActivityResponse emptyResponse = new DashboardActivityResponse();
+            emptyResponse.setItems(Collections.emptyList());
+            emptyResponse.setCurrentPage(0);
+            emptyResponse.setTotalPages(0);
+            emptyResponse.setTotalItems(0);
+            return ResponseEntity.ok(ApiResponse.success(emptyResponse));
+        }
 
+        Coach coach = coachOpt.get();
         DashboardActivityResponse response = dashboardService.getActividad(coach.getIdCoach(), page, size);
         return ResponseEntity.ok(ApiResponse.success(response));
     }

@@ -63,18 +63,20 @@ public class TestFisicoService {
                 .collect(Collectors.toList());
     }
 
-    public TestFisicoResponse createTest(TestFisicoRequest request, Long coachId) {
-        log.debug("Creating new TestFisico for deportista ID: {}", request.getDeportistaId());
+    public TestFisicoResponse createTest(TestFisicoRequest request, Long userId) {
+        log.debug("Creating new TestFisico for deportista ID: {}, userId: {}", request.getDeportistaId(), userId);
 
         Deportista deportista = deportistaRepository.findById(request.getDeportistaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Deportista", "id", request.getDeportistaId()));
 
-        Coach coach = coachRepository.findById(coachId)
-                .orElseThrow(() -> new ResourceNotFoundException("Coach", "id", coachId));
+        // Coach is optional - DEPORTISTA self-testing won't have a coach record
+        Coach coach = coachRepository.findById(userId).orElse(null);
 
-        TestFisico test = new TestFisico(deportista, coach);
+        TestFisico test = new TestFisico();
+        test.setDeportista(deportista);
+        test.setCoach(coach);
         test.setTipoTest(request.getTipoTest());
-        test.setLugar(request.getNotas());
+        test.setLugar(request.getNotas() != null ? request.getNotas() : "");
         test.setFechaEjecucion(LocalDateTime.now());
         test.setEstadoTest(EstadoTest.EN_PROGRESO);
 
