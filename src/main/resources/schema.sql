@@ -79,7 +79,7 @@ CREATE TABLE deportista (
 CREATE TABLE test_fisico (
     id_test_fisico                 BIGINT        NOT NULL AUTO_INCREMENT,
     id_deportista                  BIGINT        NOT NULL,
-    id_coach                       BIGINT        NOT NULL,
+    id_coach                       BIGINT            NULL,
     fecha_ejecucion                DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     lugar                          VARCHAR(150)      NULL,
     peso_deportista                DECIMAL(5,2)      NULL,
