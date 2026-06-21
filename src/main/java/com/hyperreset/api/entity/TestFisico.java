@@ -23,7 +23,7 @@ public class TestFisico {
     private Deportista deportista;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_coach", nullable = false)
+    @JoinColumn(name = "id_coach", nullable = true)
     private Coach coach;
 
     @Column(name = "fecha_ejecucion", nullable = false)

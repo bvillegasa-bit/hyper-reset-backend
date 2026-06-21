@@ -69,8 +69,8 @@ public class TestFisicoService {
         Deportista deportista = deportistaRepository.findById(request.getDeportistaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Deportista", "id", request.getDeportistaId()));
 
-        // Coach is optional - DEPORTISTA self-testing won't have a coach record
-        Coach coach = coachRepository.findById(userId).orElse(null);
+        // Get the deportista's assigned coach (may be null for unassigned DEPORTISTAs)
+        Coach coach = deportista.getCoach();
 
         TestFisico test = new TestFisico();
         test.setDeportista(deportista);
