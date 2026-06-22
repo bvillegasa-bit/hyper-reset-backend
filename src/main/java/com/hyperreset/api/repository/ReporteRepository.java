@@ -25,4 +25,8 @@ public interface ReporteRepository extends JpaRepository<Reporte, Long> {
     List<Reporte> findByTestFisicoId(@Param("testFisicoId") Long testFisicoId);
 
     Optional<Reporte> findByTestFisicoIdTestFisico(Long idTestFisico);
+
+    @Query("SELECT COUNT(r) FROM Reporte r JOIN r.testFisico t JOIN t.deportista d JOIN d.coach c " +
+           "WHERE c.idCoach = :coachId")
+    long countByCoachId(@Param("coachId") Long coachId);
 }

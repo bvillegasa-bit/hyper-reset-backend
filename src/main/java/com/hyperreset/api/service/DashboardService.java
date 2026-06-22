@@ -15,6 +15,7 @@ import com.hyperreset.api.entity.TestFisico;
 import com.hyperreset.api.entity.enums.EstadoTest;
 import com.hyperreset.api.repository.CitaRepository;
 import com.hyperreset.api.repository.DeportistaRepository;
+import com.hyperreset.api.repository.ReporteRepository;
 import com.hyperreset.api.repository.ResultadoTestRepository;
 import com.hyperreset.api.repository.TestFisicoRepository;
 import org.slf4j.Logger;
@@ -56,6 +57,9 @@ public class DashboardService {
 
     @Autowired
     private TestFisicoRepository testFisicoRepository;
+
+    @Autowired
+    private ReporteRepository reporteRepository;
 
     // ==================================================================
     // Deportista Dashboard
@@ -233,11 +237,8 @@ public class DashboardService {
                     .count();
         }
 
-        // Reports: count of test sessions for the coach's patients
-        long reportes = 0;
-        for (Deportista d : pacientes) {
-            reportes += testFisicoRepository.findByDeportistaId(d.getIdDeportista()).size();
-        }
+        // Reports: actual Reporte entities generated for the coach's patients
+        long reportes = reporteRepository.countByCoachId(coachId);
 
         return new DashboardCoachResponse.EstadisticasInfo(
                 (int) pacientesHoy,
