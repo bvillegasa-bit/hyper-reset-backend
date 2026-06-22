@@ -50,6 +50,16 @@ public class TestFisicoController {
         return ResponseEntity.ok(ApiResponse.success(tests));
     }
 
+    @GetMapping("/deportista/{deportistaId}/tipo/{tipoTest}")
+    @PreAuthorize("hasAnyRole('COACH', 'DEPORTISTA', 'ADMIN')")
+    public ResponseEntity<ApiResponse<List<TestFisicoResponse>>> getTestsByDeportistaAndTipo(
+            @PathVariable Long deportistaId,
+            @PathVariable String tipoTest) {
+        log.debug("GET /api/test-fisicos/deportista/{}/tipo/{}", deportistaId, tipoTest);
+        List<TestFisicoResponse> tests = testFisicoService.getTestsByDeportistaAndTipo(deportistaId, tipoTest);
+        return ResponseEntity.ok(ApiResponse.success(tests));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('COACH', 'DEPORTISTA')")
     public ResponseEntity<ApiResponse<TestFisicoResponse>> createTest(

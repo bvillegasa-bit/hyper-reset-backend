@@ -6,6 +6,7 @@ import com.hyperreset.api.entity.Coach;
 import com.hyperreset.api.entity.Deportista;
 import com.hyperreset.api.entity.TestFisico;
 import com.hyperreset.api.entity.enums.EstadoTest;
+import com.hyperreset.api.entity.enums.TipoTest;
 import com.hyperreset.api.exception.BadRequestException;
 import com.hyperreset.api.exception.ResourceNotFoundException;
 import com.hyperreset.api.repository.CoachRepository;
@@ -58,6 +59,31 @@ public class TestFisicoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Deportista", "id", deportistaId));
 
         List<TestFisico> tests = testFisicoRepository.findByDeportistaId(deportistaId);
+        return tests.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<TestFisicoResponse> getTestsByDeportistaAndTipo(Long deportistaId, String tipoTestStr) {
+        log.debug("Fetching tests for deportistaId: {} and tipoTest: {}", deportistaId, tipoTestStr);
+
+        // Validate deportista exists
+        if (!deportistaRepository.existsById(deportistaId)) {
+            throw new ResourceNotFoundException("Deportista", "id", deportistaId);
+        }
+
+        // Parse TipoTest (case-insensitive)
+        TipoTest tipoTest;
+        try {
+            tipoTest = TipoTest.valueOf(tipoTestStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Tipo de test inválido: " + tipoTestStr);
+        }
+
+        List<TestFisico> tests = testFisicoRepository
+                .findByDeportistaIdAndTipoTestOrderByFechaDesc(deportistaId, tipoTest);
+
         return tests.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
