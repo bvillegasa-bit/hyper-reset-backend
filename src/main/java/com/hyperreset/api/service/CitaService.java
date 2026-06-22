@@ -114,22 +114,29 @@ public class CitaService {
         return getCitasByDateRange(start, end);
     }
 
-    public CitaResponse createCita(CitaRequest request) {
-        log.debug("Creating cita for coachId: {}, deportistaId: {}",
-                request.getCoachId(), request.getDeportistaId());
+    public CitaResponse createCita(CitaRequest request, Long authenticatedUserId) {
+        log.debug("Creating cita for coachId: {}, deportistaId: {} by authenticatedUserId: {}",
+                request.getCoachId(), request.getDeportistaId(), authenticatedUserId);
 
-        // coachId from Android is the Usuario ID, so look up by usuario.idUsuario
+        // Look up coach by usuario.idUsuario (both COACH and DEPORTISTA send usuarioId as coachId)
         Coach coach = coachRepository.findByUsuario_IdUsuario(request.getCoachId())
                 .orElseThrow(() -> new ResourceNotFoundException("Coach", "usuarioId", request.getCoachId()));
 
         Deportista deportista = deportistaRepository.findByIdWithUser(request.getDeportistaId())
                 .orElseThrow(() -> new ResourceNotFoundException("Deportista", "id", request.getDeportistaId()));
 
-        // For DEPORTISTA users, verify they are creating a cita for themselves
+        // Validate the authenticated user has the right to create this cita
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof UserPrincipal) {
             UserPrincipal userPrincipal = (UserPrincipal) auth.getPrincipal();
-            if ("DEPORTISTA".equals(userPrincipal.getRole())) {
+            if ("COACH".equals(userPrincipal.getRole())) {
+                // COACH must be creating a cita for themselves
+                if (!request.getCoachId().equals(authenticatedUserId)) {
+                    throw new com.hyperreset.api.exception.UnauthorizedException(
+                            "No puedes crear citas para otro coach");
+                }
+            } else if ("DEPORTISTA".equals(userPrincipal.getRole())) {
+                // DEPORTISTA must be creating a cita for themselves
                 var deportistaOpt = deportistaRepository.findByUsuarioId(userPrincipal.getUserId());
                 if (deportistaOpt.isEmpty() || !deportistaOpt.get().getIdDeportista().equals(request.getDeportistaId())) {
                     throw new com.hyperreset.api.exception.UnauthorizedException(

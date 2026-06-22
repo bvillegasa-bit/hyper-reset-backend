@@ -77,7 +77,7 @@ public class CitaController {
             @Valid @RequestBody CitaRequest request,
             @CurrentUser Long userId) {
         log.info("POST /api/citas - creating cita by userId: {}", userId);
-        CitaResponse cita = citaService.createCita(request);
+        CitaResponse cita = citaService.createCita(request, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Cita created successfully", cita));
     }

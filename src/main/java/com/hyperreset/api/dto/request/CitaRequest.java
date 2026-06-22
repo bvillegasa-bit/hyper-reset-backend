@@ -1,6 +1,5 @@
 package com.hyperreset.api.dto.request;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -14,7 +13,6 @@ public class CitaRequest {
     private Long deportistaId;
 
     @NotNull(message = "Fecha de cita is required")
-    @Future(message = "Fecha de cita must be in the future")
     private LocalDate fechaCita;
 
     @NotBlank(message = "Hora de cita is required")
